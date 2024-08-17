@@ -1,5 +1,6 @@
 import discord
 import os
+import random
 from dotenv import load_dotenv
 from discord.ext import commands
 from datetime import timedelta
@@ -40,5 +41,22 @@ async def timeout(ctx, member: discord.Member, duration: int, *, reason=None):
     except discord.HTTPException:
         await ctx.send("Failed to timeout the member.")
 
+@bot.command()
+async def roll4life(ctx):
+    # Russian roulette simulation: 1 in 6 chance to "die"
+    bullet_chamber = random.randint(1, 6)
 
+    if bullet_chamber == 1:
+        # The author "dies"
+        try:
+            timeout_duration = timedelta(minutes=1)
+            await ctx.author.timeout(timeout_duration, reason="Lost at Russian roulette")
+            await ctx.send(f'{ctx.author.mention} pulled the trigger... 💥 **BANG!** You\'ve been shot! Enjoy death.')
+        except discord.Forbidden:
+            await ctx.send("I can't seem to be able to kill you.")
+        except discord.HTTPException:
+            await ctx.send("Failed to timeout you.")
+    else:
+        # The author survives
+        await ctx.send(f'{ctx.author.mention} pulled the trigger... *click* You\'re lucky! No bullet this time.')
 bot.run(BOT_TOKEN)
